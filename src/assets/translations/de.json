@@ -8,12 +8,14 @@
     "finishRect": "Beende mit Klick",
     "startCircle": "Platziere das Kreiszentrum mit Klick",
     "finishCircle": "Beende den Kreis mit Klick",
-    "placeCircleMarker": "Platziere den Kreismarker mit Klick"
+    "placeCircleMarker": "Platziere den Kreismarker mit Klick",
+    "placeSplitLine": "Teile die Linie mit Klick"
   },
   "actions": {
     "finish": "Beenden",
     "cancel": "Abbrechen",
-    "removeLastVertex": "Letzten Vertex löschen"
+    "removeLastVertex": "Letzten Vertex löschen",
+    "split": "Teilen"
   },
   "buttonTitles": {
     "drawMarkerButton": "Marker zeichnen",
@@ -28,6 +30,7 @@
     "drawCircleMarkerButton": "Kreismarker zeichnen",
     "snappingButton": "Bewegter Layer an andere Layer oder Vertexe einhacken",
     "pinningButton": "Vertexe an der gleichen Position verknüpfen",
-    "rotateButton": "Layer drehen"
+    "rotateButton": "Layer drehen",
+    "splitlineButton": "Linie Teilen"
   }
 }

@@ -15,6 +15,7 @@ const Toolbar = L.Class.extend({
     editMode: true,
     dragMode: true,
     cutPolygon: true,
+    splitLine: true,
     removalMode: true,
     rotateMode: true,
     snappingOption: true,
@@ -118,6 +119,7 @@ const Toolbar = L.Class.extend({
         dragMode: 'control-icon leaflet-pm-icon-drag',
         cutPolygon: 'control-icon leaflet-pm-icon-cut',
         removalMode: 'control-icon leaflet-pm-icon-delete',
+        splitLine: 'control-icon leaflet-pm-icon-cut',
       },
     };
 
@@ -348,6 +350,23 @@ const Toolbar = L.Class.extend({
       actions: ['finish', 'removeLastVertex', 'cancel'],
     };
 
+
+    const splitLineButton = {
+      title: getTranslation('buttonTitles.splitlineButton'),
+      className: 'control-icon leaflet-pm-icon-cut',
+      jsClass: 'Split',
+      onClick: () => { },
+      afterClick: (e, ctx) => {
+        // toggle drawing mode
+        this.map.pm.Draw[ctx.button._button.jsClass].toggle();
+      },
+      doToggle: true,
+      toggleStatus: false,
+      disableOtherButtons: true,
+      position: this.options.position,
+      actions: ['cancel', 'split'],
+    };
+
     const deleteButton = {
       title: getTranslation('buttonTitles.deleteButton'),
       className: 'control-icon leaflet-pm-icon-delete',
@@ -391,6 +410,7 @@ const Toolbar = L.Class.extend({
     this._addButton('dragMode', new L.Control.PMButton(dragButton));
     this._addButton('cutPolygon', new L.Control.PMButton(cutButton));
     this._addButton('removalMode', new L.Control.PMButton(deleteButton));
+    this._addButton('splitLine', new L.Control.PMButton(splitLineButton));
     this._addButton('rotateMode', new L.Control.PMButton(rotateButton));
   },
 
@@ -646,19 +666,20 @@ const Toolbar = L.Class.extend({
   },
   _shapeMapping() {
     return {
-      Marker: 'drawMarker',
-      Circle: 'drawCircle',
-      Polygon: 'drawPolygon',
-      Rectangle: 'drawRectangle',
-      Polyline: 'drawPolyline',
-      Line: 'drawPolyline',
-      CircleMarker: 'drawCircleMarker',
-      Edit: 'editMode',
-      Drag: 'dragMode',
-      Cut: 'cutPolygon',
-      Removal: 'removalMode',
-      Rotate: 'rotateMode',
-    };
+      "Marker": "drawMarker",
+      "Circle": "drawCircle",
+      "Polygon": "drawPolygon",
+      "Rectangle": "drawRectangle",
+      "Polyline": "drawPolyline",
+      "Line": "drawPolyline",
+      "CircleMarker": "drawCircleMarker",
+      "Edit": "editMode",
+      "Drag": "dragMode",
+      "Cut": "cutPolygon",
+      "Removal": "removalMode",
+      "Rotate": "rotateMode",
+      "Split": "splitLine",
+    }
   },
   _btnNameMapping(name) {
     const shapeMapping = this._shapeMapping();

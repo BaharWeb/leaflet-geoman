@@ -8,12 +8,14 @@
     "finishRect": "Click to finish",
     "startCircle": "Click to place circle center",
     "finishCircle": "Click to finish circle",
-    "placeCircleMarker": "Click to place circle marker"
+    "placeCircleMarker": "Click to place circle marker",
+    "placeSplitLine": "Click to split the line"
   },
   "actions": {
     "finish": "Finish",
     "cancel": "Cancel",
-    "removeLastVertex": "Remove Last Vertex"
+    "removeLastVertex": "Remove Last Vertex",
+    "split":  "Split"
   },
   "buttonTitles": {
     "drawMarkerButton": "Draw Marker",
@@ -28,6 +30,7 @@
     "drawCircleMarkerButton": "Draw Circle Marker",
     "snappingButton": "Snap dragged marker to other layers and vertices",
     "pinningButton": "Pin shared vertices together",
-    "rotateButton": "Rotate Layers"
+    "rotateButton": "Rotate Layers",
+    "splitlineButton": "Split Line"
   }
 }
