@@ -59,6 +59,7 @@ const Draw = L.Class.extend({
       'Circle',
       'Cut',
       'Text',
+      'Split'
     ];
 
     // initiate drawing class for our shapes
@@ -66,8 +67,9 @@ const Draw = L.Class.extend({
       this[shape] = new L.PM.Draw[shape](this._map);
     });
 
-    this.Marker.setOptions({ continueDrawing: true });
-    this.CircleMarker.setOptions({ continueDrawing: true });
+    this.Marker.setOptions({continueDrawing: true});
+    this.CircleMarker.setOptions({continueDrawing: true});
+    this.Split.setOptions({continueDrawing: false});
   },
   setPathOptions(options, mergeOptions = false) {
     if (!mergeOptions) {
@@ -179,7 +181,7 @@ const Draw = L.Class.extend({
       cutPolygon: 'Cut',
       removalMode: 'Removal',
       rotateMode: 'Rotate',
-      drawText: 'Text',
+      splitline: "Split"
     };
 
     if (shapeMapping[name]) {
