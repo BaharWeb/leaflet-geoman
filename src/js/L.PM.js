@@ -21,6 +21,7 @@ import './Draw/L.PM.Draw.Polygon';
 import './Draw/L.PM.Draw.Rectangle';
 import './Draw/L.PM.Draw.Circle';
 import './Draw/L.PM.Draw.CircleMarker';
+import './Draw/L.PM.Draw.SldMarker';
 import './Draw/L.PM.Draw.Cut';
 import './Draw/L.PM.Draw.Text';
 import './Draw/L.PM.Draw.Split';
@@ -35,6 +36,7 @@ import './Edit/L.PM.Edit.Circle';
 import './Edit/L.PM.Edit.CircleMarker';
 import './Edit/L.PM.Edit.ImageOverlay';
 import './Edit/L.PM.Edit.Text';
+import './Edit/L.PM.Edit.SldMarker';
 
 import '../css/layers.css';
 import '../css/controls.css';
@@ -42,6 +44,7 @@ import '../css/controls.css';
 import Matrix from './helpers/Matrix';
 
 import Utils from './L.PM.Utils';
+
 
 L.PM = L.PM || {
   version: packageInfo.version,
@@ -128,6 +131,19 @@ L.PM = L.PM || {
       }
     }
     L.CircleMarker.addInitHook(initCircleMarker);
+
+    function initSldMarker() {
+      this.pm = undefined;
+
+      if (L.PM.optIn) {
+        if (this.options.pmIgnore === false) {
+          this.pm = new L.PM.Edit.SldMarker(this);
+        }
+      } else if (!this.options.pmIgnore) {
+        this.pm = new L.PM.Edit.SldMarker(this);
+      }
+    }
+    L.SldMarker.addInitHook(initSldMarker);
 
     function initPolyline() {
       this.pm = undefined;
@@ -219,7 +235,9 @@ L.PM = L.PM || {
       layer.pm = new L.PM.Edit.Circle(layer);
     } else if (layer instanceof L.CircleMarker) {
       layer.pm = new L.PM.Edit.CircleMarker(layer);
-    } else if (layer instanceof L.Rectangle) {
+    } else if (layer instanceof L.SldMarker) {
+      layer.pm = new L.PM.Edit.SldMarker(layer);
+    }else if(layer instanceof L.Rectangle){
       layer.pm = new L.PM.Edit.Rectangle(layer);
     } else if (layer instanceof L.Polygon) {
       layer.pm = new L.PM.Edit.Polygon(layer);

@@ -59,7 +59,8 @@ const Draw = L.Class.extend({
       'Circle',
       'Cut',
       'Text',
-      'Split'
+      'Split',
+      'SldMarker'
     ];
 
     // initiate drawing class for our shapes
@@ -68,7 +69,8 @@ const Draw = L.Class.extend({
     });
 
     this.Marker.setOptions({continueDrawing: true});
-    this.CircleMarker.setOptions({continueDrawing: true});
+    this.CircleMarker.setOptions({ continueDrawing: true });
+    this.SldMarker.setOptions({ continueDrawing: false });
     this.Split.setOptions({continueDrawing: false});
   },
   setPathOptions(options, mergeOptions = false) {
@@ -170,18 +172,19 @@ const Draw = L.Class.extend({
   },
   _getShapeFromBtnName(name) {
     const shapeMapping = {
-      drawMarker: 'Marker',
-      drawCircle: 'Circle',
-      drawPolygon: 'Polygon',
-      drawPolyline: 'Line',
-      drawRectangle: 'Rectangle',
-      drawCircleMarker: 'CircleMarker',
-      editMode: 'Edit',
-      dragMode: 'Drag',
-      cutPolygon: 'Cut',
-      removalMode: 'Removal',
-      rotateMode: 'Rotate',
-      splitline: "Split"
+      "drawMarker": "Marker",
+      "drawCircle": "Circle",
+      "drawPolygon": "Polygon",
+      "drawPolyline": "Line",
+      "drawRectangle": "Rectangle",
+      "drawCircleMarker": "CircleMarker",
+      "drawSldMarker": "SldMarker",
+      "editMode": "Edit",
+      "dragMode": "Drag",
+      "cutPolygon": "Cut",
+      "removalMode": "Removal",
+      "rotateMode": "Rotate",
+      "splitline": "Split"
     };
 
     if (shapeMapping[name]) {
