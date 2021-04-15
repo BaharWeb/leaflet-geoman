@@ -237,17 +237,15 @@ const DragMixin = {
         };
       });
 
-    if (
-      this._layer instanceof L.Circle ||
-      (this._layer instanceof L.CircleMarker && this._layer.options.editable)
-    ) {
+    if (this._layer instanceof L.Circle || ((this._layer instanceof L.CircleMarker || this._layer instanceof L.SldMarker) && this._layer.options.editable)) {
       // create the new coordinates array
       const newCoords = moveCoords([this._layer.getLatLng()]);
       // set new coordinates and redraw
       this._layer.setLatLng(newCoords[0]);
     } else if (
       this._layer instanceof L.CircleMarker ||
-      this._layer instanceof L.Marker
+      this._layer instanceof L.Marker || 
+      this._layer instanceof L.SldMarker
     ) {
       let coordsRefernce = this._layer.getLatLng();
       if (this._layer._snapped) {

@@ -171,7 +171,6 @@ export function prioritiseSort(key, _sortingOrder, order = 'asc') {
   if (!_sortingOrder || Object.keys(_sortingOrder).length === 0) {
     return (a, b) => a - b; // default sort method
   }
-
   // change the keys to lowercase
   const keys = Object.keys(_sortingOrder);
   let objKey;
@@ -191,6 +190,9 @@ export function prioritiseSort(key, _sortingOrder, order = 'asc') {
     }
     if (layer instanceof L.CircleMarker) {
       return 'CircleMarker';
+    }
+    if (layer instanceof L.SldMarker) {
+      return "SldMarker";
     }
     if (layer instanceof L.Rectangle) {
       return 'Rectangle';

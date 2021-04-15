@@ -96,7 +96,6 @@ const SnapMixin = {
       marker.getLatLng(),
       this._snapList
     );
-
     // if no layers found. Can happen when circle is the only visible layer on the map and the hidden snapping-border circle layer is also on the map
     if (Object.keys(closestLayer).length === 0) {
       return false;
@@ -105,7 +104,9 @@ const SnapMixin = {
     const isMarker =
       closestLayer.layer instanceof L.Marker ||
       closestLayer.layer instanceof L.CircleMarker ||
-      !this.options.snapSegment;
+      closestLayer.layer instanceof L.SldMarker ||
+      closestLayer.layer instanceof L.CircleMarker;
+    !this.options.snapSegment;
 
     // find the final latlng that we want to snap to
     let snapLatLng;
@@ -186,6 +187,7 @@ const SnapMixin = {
         (layer instanceof L.Polyline ||
           layer instanceof L.Marker ||
           layer instanceof L.CircleMarker ||
+          layer instanceof L.SldMarker ||
           layer instanceof L.ImageOverlay) &&
         layer.options.snapIgnore !== true
       ) {
@@ -199,11 +201,7 @@ const SnapMixin = {
         }
 
         // adds a hidden polygon which matches the border of the circle
-        if (
-          (layer instanceof L.Circle || layer instanceof L.CircleMarker) &&
-          layer.pm &&
-          layer.pm._hiddenPolyCircle
-        ) {
+        if ((layer instanceof L.Circle || layer instanceof L.CircleMarker || layer instanceof L.SldMarker) && layer.pm && layer.pm._hiddenPolyCircle) {
           layers.push(layer.pm._hiddenPolyCircle);
         } else if (layer instanceof L.ImageOverlay) {
           layer = L.rectangle(layer.getBounds());
@@ -214,7 +212,7 @@ const SnapMixin = {
         const debugLine = L.polyline([], { color: 'red', pmIgnore: true });
         debugLine._pmTempLayer = true;
         debugIndicatorLines.push(debugLine);
-        if (layer instanceof L.Circle || layer instanceof L.CircleMarker) {
+        if (layer instanceof L.Circle || layer instanceof L.CircleMarker || layer instanceof L.SldMarker) {
           debugIndicatorLines.push(debugLine);
         }
 
@@ -265,7 +263,7 @@ const SnapMixin = {
 
     // loop through the layers
     layers.forEach((layer, index) => {
-      // For Circles and CircleMarkers to prevent that they snap to the own borders.
+      // For Circles, CircleMarker and SldMarkers to prevent that they snap to the own borders.
       if (layer._parentCopy && layer._parentCopy === this._layer) {
         return;
       }
@@ -290,7 +288,6 @@ const SnapMixin = {
         closestLayers.push(closestLayer);
       }
     });
-
     // return the closest layer and it's data
     // if there is no closest layer, return an empty object
     return this._getClosestLayerByPriority(closestLayers);
@@ -300,7 +297,7 @@ const SnapMixin = {
 
     // is this a marker?
     const isMarker =
-      layer instanceof L.Marker || layer instanceof L.CircleMarker;
+      layer instanceof L.Marker || layer instanceof L.CircleMarker || layer instanceof L.SldMarker;
 
     // is it a polygon?
     const isPolygon = layer instanceof L.Polygon;
@@ -374,6 +371,7 @@ const SnapMixin = {
     };
 
     loopThroughCoords(latlngs);
+    //this.options.snapSegment = true;
 
     if (this.options.snapSegment) {
       // now, take the closest segment (closestSegment) and calc the closest point to P on it.
@@ -383,7 +381,7 @@ const SnapMixin = {
         closestSegment[0],
         closestSegment[1]
       );
-
+      
       // return the latlng of that sucker
       return {
         latlng: { ...C },
@@ -409,9 +407,10 @@ const SnapMixin = {
       'Line',
       'Polygon',
       'Rectangle',
+      'SldMarker',
     ];
     const order = this._map.pm.globalOptions.snappingOrder || [];
-
+    
     let lastIndex = 0;
     const prioOrder = {};
     // merge user-preferred priority with default priority
@@ -421,7 +420,7 @@ const SnapMixin = {
         prioOrder[shape] = lastIndex;
       }
     });
-
+   
     // sort layers by priority
     layers.sort(prioritiseSort('instanceofShape', prioOrder));
     return layers[0] || {};
@@ -429,6 +428,7 @@ const SnapMixin = {
   // we got the point we want to snap to (C), but we need to check if a coord of the polygon
   // receives priority over C as the snapping point. Let's check this here
   _checkPrioritiySnapping(closestLayer) {
+    
     const map = this._map;
 
     // A and B are the points of the closest segment to P (the marker position we want to snap)

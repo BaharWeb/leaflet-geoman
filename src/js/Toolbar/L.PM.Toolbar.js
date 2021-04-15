@@ -12,6 +12,7 @@ const Toolbar = L.Class.extend({
     drawPolygon: true,
     drawCircle: true,
     drawCircleMarker: true,
+    drawSldMarker: true,
     editMode: true,
     dragMode: true,
     cutPolygon: true,
@@ -115,6 +116,7 @@ const Toolbar = L.Class.extend({
         drawPolygon: 'control-icon leaflet-pm-icon-polygon',
         drawCircle: 'control-icon leaflet-pm-icon-circle',
         drawCircleMarker: 'control-icon leaflet-pm-icon-circle-marker',
+        drawSldMarker: 'control-icon leaflet-pm-icon-circle-marker',
         editMode: 'control-icon leaflet-pm-icon-edit',
         dragMode: 'control-icon leaflet-pm-icon-drag',
         cutPolygon: 'control-icon leaflet-pm-icon-cut',
@@ -283,6 +285,22 @@ const Toolbar = L.Class.extend({
       actions: ['cancel'],
     };
 
+    const drawSldMarkerButton = {
+      title: getTranslation('buttonTitles.drawMarkerButton'),
+      className: 'control-icon leaflet-pm-icon-circle-marker',
+      jsClass: 'SldMarker',
+      onClick: () => { },
+      afterClick: (e, ctx) => {
+        // toggle drawing mode
+        this.map.pm.Draw[ctx.button._button.jsClass].toggle();
+      },
+      doToggle: true,
+      toggleStatus: false,
+      disableOtherButtons: true,
+      position: this.options.position,
+      actions: ['cancel'],
+    };
+
     const drawRectButton = {
       title: getTranslation('buttonTitles.drawRectButton'),
       className: 'control-icon leaflet-pm-icon-rectangle',
@@ -402,10 +420,8 @@ const Toolbar = L.Class.extend({
     this._addButton('drawRectangle', new L.Control.PMButton(drawRectButton));
     this._addButton('drawPolygon', new L.Control.PMButton(drawPolyButton));
     this._addButton('drawCircle', new L.Control.PMButton(drawCircleButton));
-    this._addButton(
-      'drawCircleMarker',
-      new L.Control.PMButton(drawCircleMarkerButton)
-    );
+    this._addButton('drawCircleMarker', new L.Control.PMButton(drawCircleMarkerButton));
+    this._addButton('drawSldMarker', new L.Control.PMButton(drawSldMarkerButton));
     this._addButton('editMode', new L.Control.PMButton(editButton));
     this._addButton('dragMode', new L.Control.PMButton(dragButton));
     this._addButton('cutPolygon', new L.Control.PMButton(cutButton));
@@ -663,6 +679,7 @@ const Toolbar = L.Class.extend({
       "Polyline": "drawPolyline",
       "Line": "drawPolyline",
       "CircleMarker": "drawCircleMarker",
+      "SldMarker": "drawSldMarker",
       "Edit": "editMode",
       "Drag": "dragMode",
       "Cut": "cutPolygon",
