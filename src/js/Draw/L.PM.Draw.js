@@ -58,7 +58,8 @@ const Draw = L.Class.extend({
       'Rectangle',
       'Circle',
       'Cut',
-      'Split'
+      'Split',
+      'SldMarker'
     ];
 
     // initiate drawing class for our shapes
@@ -67,7 +68,8 @@ const Draw = L.Class.extend({
     });
 
     this.Marker.setOptions({continueDrawing: true});
-    this.CircleMarker.setOptions({continueDrawing: true});
+    this.CircleMarker.setOptions({ continueDrawing: true });
+    this.SldMarker.setOptions({ continueDrawing: false });
     this.Split.setOptions({continueDrawing: false});
   },
   setPathOptions(options, mergeOptions = false) {
@@ -175,6 +177,7 @@ const Draw = L.Class.extend({
       "drawPolyline": "Line",
       "drawRectangle": "Rectangle",
       "drawCircleMarker": "CircleMarker",
+      "drawSldMarker": "SldMarker",
       "editMode": "Edit",
       "dragMode": "Drag",
       "cutPolygon": "Cut",
