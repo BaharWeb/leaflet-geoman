@@ -431,9 +431,8 @@ const Toolbar = L.Class.extend({
   },
 
   _showHideButtons() {
-
     // if Toolbar is not visible, we don't need to update button positions
-    if(!this.isVisible){
+    if (!this.isVisible) {
       return;
     }
 
@@ -485,7 +484,6 @@ const Toolbar = L.Class.extend({
         buttons[btn].addTo(this.map);
       }
     }
-
   },
   _getBtnPosition(block) {
     return this.options.positions && this.options.positions[block]
