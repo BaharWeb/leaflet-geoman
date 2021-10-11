@@ -10,7 +10,8 @@
     "finishCircle": "Beende den Kreis mit Klick",
     "placeCircleMarker": "Platziere den Kreismarker mit Klick",
     "placeText": "Platziere den Text mit Klick",
-    "placeSplitLine": "Teile die Linie mit Klick"
+    "placeSplitLine": "Teile die Linie mit Klick",
+    "lineLength": "Länge"
   },
   "actions": {
     "finish": "Beenden",

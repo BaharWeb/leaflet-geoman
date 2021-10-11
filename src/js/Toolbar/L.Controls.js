@@ -145,13 +145,13 @@ const PMButton = L.Control.extend({
         },
       },
 
-      split: {
-        text: getTranslation('actions.split'),
-        onClick(e) {
-          this._map.pm.Draw[button.jsClass]._split();
-        },
+      // split: {
+      //  text: getTranslation('actions.split'),
+      //  onClick(e) {
+      //    this._map.pm.Draw[button.jsClass]._split();
+      //  },
 
-      },
+      // },
     };
 
     activeActions.forEach((_action) => {

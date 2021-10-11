@@ -10,7 +10,8 @@
     "finishCircle": "Click to finish circle",
     "placeCircleMarker": "Click to place circle marker",
     "placeText": "Click to place text",
-    "placeSplitLine": "Click to split the line"
+    "placeSplitLine": "Click to split the line",
+    "lineLength": "Länge"
   },
   "actions": {
     "finish": "Finish",
