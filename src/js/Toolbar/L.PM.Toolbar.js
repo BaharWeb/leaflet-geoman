@@ -382,7 +382,7 @@ const Toolbar = L.Class.extend({
       toggleStatus: false,
       disableOtherButtons: true,
       position: this.options.position,
-      actions: ['cancel', 'split'],
+      actions: ['cancel'],
     };
 
     const deleteButton = {

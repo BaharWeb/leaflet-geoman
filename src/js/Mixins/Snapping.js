@@ -371,7 +371,7 @@ const SnapMixin = {
     };
 
     loopThroughCoords(latlngs);
-    //this.options.snapSegment = true;
+    // this.options.snapSegment = true;
 
     if (this.options.snapSegment) {
       // now, take the closest segment (closestSegment) and calc the closest point to P on it.

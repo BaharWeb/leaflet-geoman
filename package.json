@@ -22,9 +22,11 @@
   "types": "dist/leaflet-geoman.d.ts",
   "dependencies": {
     "@turf/boolean-contains": "6.3.0",
+    "@turf/distance": "^6.5.0",
     "@turf/kinks": "6.3.0",
     "@turf/line-intersect": "6.3.0",
     "@turf/line-split": "6.3.0",
+    "es2015-i18n-tag": "^1.6.1",
     "lodash": "4.17.21",
     "polygon-clipping": "0.15.3"
   },
