@@ -7,6 +7,8 @@ const Draw = L.Class.extend({
   options: {
     snappable: true, // TODO: next major Release, rename it to allowSnapping
     snapDistance: 20,
+    splitDistance: 0.5,
+    splitLineUnit: 'meters',
     snapMiddle: false,
     allowSelfIntersection: true,
     tooltips: true,

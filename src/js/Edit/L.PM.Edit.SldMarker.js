@@ -7,7 +7,7 @@ Edit.SldMarker = Edit.extend({
     this._layer = layer;
     this._enabled = false;
     // create polygon around the circle border
-    //this._updateHiddenPolyCircle();
+    // this._updateHiddenPolyCircle();
   },
   enable(options = { draggable: true, snappable: true }) {
     L.Util.setOptions(this, options);
@@ -29,7 +29,7 @@ Edit.SldMarker = Edit.extend({
     this._layer.on('pm:dragend', this._onMarkerDragEnd, this);
     
     // create polygon around the circle border
-    //this._updateHiddenPolyCircle();
+    // this._updateHiddenPolyCircle();
 
     L.PM.Utils._fireEvent(this._layer, 'pm:enable', { layer: this._layer, shape: this.getShape() });
   },
@@ -98,10 +98,10 @@ Edit.SldMarker = Edit.extend({
       this._initMarkers();
       this._map.on('move', this._syncMarkers, this);
     }
-    //} else {
+    // } else {
     //  // only update the circle border poly
     //  this._map.on('move', this._updateHiddenPolyCircle, this);
-    //}
+    // }
 
     // init snapping in different ways
     if (this.options.snappable) {
@@ -211,7 +211,7 @@ Edit.SldMarker = Edit.extend({
     this._outerMarker.setLatLng(outer);
     this._syncHintLine();
 
-    //this._updateHiddenPolyCircle();
+    // this._updateHiddenPolyCircle();
 
     L.PM.Utils._fireEvent(this._layer, 'pm:centerplaced', {
       layer: this._layer,
@@ -226,7 +226,7 @@ Edit.SldMarker = Edit.extend({
     this._outerMarker.setLatLng(outer);
     this._centerMarker.setLatLng(center);
     this._syncHintLine();
-    //this._updateHiddenPolyCircle();
+    // this._updateHiddenPolyCircle();
   },
   _resizeCircle() {
     this._outerMarker.setLatLng(this._getNewDestinationOfOuterMarker());
@@ -246,7 +246,7 @@ Edit.SldMarker = Edit.extend({
       this._layer.setRadius(distance);
     }
 
-    //this._updateHiddenPolyCircle();
+    // this._updateHiddenPolyCircle();
   },
   _syncHintLine() {
     const A = this._centerMarker.getLatLng();
