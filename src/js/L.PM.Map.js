@@ -120,20 +120,20 @@ const Map = L.Class.extend({
       this.map.pm.Draw.CircleMarker.enable();
     }
 
-    //let reenableSldMarker = false;
-    //if (this.map.pm.Draw.SldMarker.enabled() && this.map.pm.Draw.SldMarker.options.editable !== options.editable) {
+    // let reenableSldMarker = false;
+    // if (this.map.pm.Draw.SldMarker.enabled() && this.map.pm.Draw.SldMarker.options.editable !== options.editable) {
     //  this.map.pm.Draw.SldMarker.disable();
     //  reenableSldMarker = true;
-    //}
+    // }
 
-    //// enable options for Drawing Shapes
-    //this.map.pm.Draw.shapes.forEach(shape => {
+    // // enable options for Drawing Shapes
+    // this.map.pm.Draw.shapes.forEach(shape => {
     //  this.map.pm.Draw[shape].setOptions(options)
-    //});
+    // });
 
-    //if (reenableSldMarker) {
+    // if (reenableSldMarker) {
     //  this.map.pm.Draw.SldMarker.enable();
-    //}
+    // }
 
 
     // enable options for Editing

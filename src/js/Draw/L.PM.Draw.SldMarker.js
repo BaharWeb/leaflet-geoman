@@ -141,7 +141,7 @@ Draw.SldMarker = Draw.Marker.extend({
 
       // unbind listeners
       this._map.off('click', this._finishShape, this);
-      //this._map.off('click', this._placeCenterMarker, this);
+      // this._map.off('click', this._placeCenterMarker, this);
 
       // remove helping layers
       this._map.removeLayer(this._layerGroup);
@@ -330,7 +330,7 @@ Draw.SldMarker = Draw.Marker.extend({
       }
     }
 
-    const options = Object.assign({}, this.options.pathOptions, { radius });
+    const options = { ...this.options.pathOptions, radius};
 
     // create the final circle layer
     const circleLayer = L.circleMarker(center, options);
