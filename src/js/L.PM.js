@@ -24,6 +24,7 @@ import './Draw/L.PM.Draw.CircleMarker';
 import './Draw/L.PM.Draw.SldMarker';
 import './Draw/L.PM.Draw.Cut';
 import './Draw/L.PM.Draw.Split';
+//import './Draw/L.PM.Draw.PlotRequest';
 
 import Edit from './Edit/L.PM.Edit';
 import './Edit/L.PM.Edit.LayerGroup';
