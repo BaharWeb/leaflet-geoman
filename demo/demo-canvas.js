@@ -29,8 +29,7 @@ const map2 = L.map('example2', { preferCanvas: true })
   .setView([51.505, -0.09], 13)
   .addLayer(tiles1);
 const map3 = L.map('example3', { preferCanvas: true })
-  .setView([51.505, -0.09], 13)
-  .addLayer(tiles2);
+  .setView([51.505, -0.09], 13);
 const map4 = L.map('example4', { preferCanvas: true })
   .setView([51.505, -0.09], 13)
   .addLayer(tiles3);
@@ -300,11 +299,11 @@ const layerGroupItem1 = L.polyline([
   [51.513, -0.08],
   [51.514, -0.11],
 ]);
-const layerGroupItem2 = L.polygon([
-  [51.52, -0.06],
-  [51.51, -0.07],
-  [51.52, -0.05],
-]);
+//const layerGroupItem2 = L.polygon([
+//  [51.52, -0.06],
+//  [51.51, -0.07],
+//  [51.52, -0.05],
+//]);
 
 const layerGroupItem3 = L.polygon([
   [51.51549835365031, -0.06450164634969281],
@@ -371,8 +370,8 @@ map4.pm.disableDraw('Marker');
 //     fillOpacity: 0.4,
 // });
 
-layerGroup.addLayer(layerGroupItem2);
-layerGroup.addLayer(layerGroupItem3);
+//layerGroup.addLayer(layerGroupItem2);
+//layerGroup.addLayer(layerGroupItem3);
 // layerGroup.addLayer(layerGroupItem4);
 // layerGroup.addLayer(layerGroupItem5);
 
@@ -398,3 +397,55 @@ layerGroup.on('pm:markerdragend', function (e) {
 // markers.addLayer(L.marker([51.505, -0.08]));
 // markers.addLayer(L.marker([51.505, -0.09]));
 // map4.addLayer(markers);
+
+function logEvent(e) {
+  console.log(e);
+}
+
+L.polygon([[51.51364748733509,-0.14456651401905998], [51.51364748733509,-0.14091870975880608], [51.515149755456754, -0.14091870975880608], [51.515149755456754, -0.14456651401905998]]).addTo(map4);
+L.polygon([[51.5121451758625, -0.14091870975880608], [51.5121451758625, -0.13727090549855214], [51.51364749352824, -0.13727090549855214], [51.51364749352824, -0.14091870975880608]]).addTo(map4);
+L.polygon([[51.51364749352822, -0.14091870975880608], [51.51364749352822, -0.13727090549855214], [51.515149761649646, -0.13727090549855214], [51.515149761649646, -0.14091870975880608]]).addTo(map4);
+
+
+$("#plotRequest").click(function () {
+
+  // this will only raise an event to check the user`s credit to place the plot on the map
+  map4.pm._fireBeforePlotRequestPlaced(true,680, 450,2000,"Some Comment");
+
+})
+
+
+$("#plotRequestMarkers").click(function () {
+
+  // Add markers to existing plots on the map
+  L.PM.Utils._addMarkers(map4, 680, 450, 2000);
+})
+
+$("#plotRequestDelete").click(function () {
+  map4.pm.toggleGlobalRemovalMode();
+
+})
+
+
+$("#plotRequestCancel").click(function () {
+
+  // To cancel the plot request
+  L.PM.Utils._plotDisable();
+
+})
+
+// Catch the event and check the credit. If confirmed then call _plotRequest() else call _disable()
+map4.on('pm:beforeplotrequestplaces', (e) => {
+
+  // If this the first plot on the map
+  if (e.initial == true) {
+    L.PM.Utils._plotRequest(map4, e);
+  } else {
+    
+    // If this plot is added to to an existing plot (by clicking on the map)
+    L.PM.Utils._addExtraPlot(e.onMarkerClick)
+  }
+
+});
+
+
