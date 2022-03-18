@@ -246,7 +246,7 @@ Draw.Split = Draw.Line.extend({
     // reset cursor
     this._map._container.style.cursor = '';
 
-    // undbind click event, don't create a marker on click anymore
+    // unbind click event, don't create a marker on click anymore
     this._map.off('click', this._createMarker, this);
     this._map.off('mousemove', this._syncHintMarker, this);
     

@@ -696,6 +696,7 @@ const Toolbar = L.Class.extend({
       "Removal": "removalMode",
       "Rotate": "rotateMode",
       "Split": "splitLine",
+      //"PlotRequest": "plotrequest",
     }
   },
   _btnNameMapping(name) {

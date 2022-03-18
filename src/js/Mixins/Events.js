@@ -649,6 +649,34 @@ const EventMixin = {
     );
   },
 
+  // Plot request
+  // Fired when plot request is called. Before any plot placement on the map the credit should be checked 
+  _fireBeforePlotRequestPlaced(
+    initial,
+    width,
+    height,
+    scale,
+    comment,
+    source = 'Draw',
+    customPayload = {},
+    onMarkerClick={ },
+  ) {
+    this.__fire(
+      this.map,
+      'pm:beforeplotrequestplaces',
+      {
+        initial,
+        width,
+        height,
+        scale,
+        comment,
+        onMarkerClick
+      },
+      source,
+      customPayload
+    );
+  },
+
   // private (very private) fire function
   __fire(fireLayer, type, payload, source, customPayload = {}) {
     payload = merge(payload, customPayload, { source });
