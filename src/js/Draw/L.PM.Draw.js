@@ -62,7 +62,8 @@ const Draw = L.Class.extend({
       'Cut',
       'Text',
       'Split',
-      'SldMarker'
+      'SldMarker',
+      //'PlotRequest'
     ];
 
     // initiate drawing class for our shapes
@@ -186,7 +187,8 @@ const Draw = L.Class.extend({
       "cutPolygon": "Cut",
       "removalMode": "Removal",
       "rotateMode": "Rotate",
-      "splitline": "Split"
+      "splitline": "Split",
+      //"plotrequest": "PlotRequest"
     };
 
     if (shapeMapping[name]) {

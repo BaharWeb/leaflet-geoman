@@ -674,7 +674,7 @@ const EventMixin = {
     comment,
     source = 'Draw',
     customPayload = {},
-    onMarkerClick={ },
+    onMarkerClick = {}
   ) {
     this.__fire(
       this.map,
