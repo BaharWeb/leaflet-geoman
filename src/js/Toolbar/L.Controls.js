@@ -267,6 +267,10 @@ const PMButton = L.Control.extend({
   },
 
   _updateDisabled() {
+    if (!this._container) {
+      return;
+    }
+
     const className = 'pm-disabled';
     const button = this.buttonsDomNode.children[0];
 

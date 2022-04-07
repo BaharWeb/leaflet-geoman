@@ -89,6 +89,13 @@
 .leaflet-pm-toolbar .leaflet-pm-icon-rotate {
   background-image: url('../assets/icons/Rotate.svg');
 }
+.icon-add-plot-request {
+  background-image: url('../assets/icons/plus.svg');
+}
+
+.icon-plot-request {
+  background-image: url('../assets/icons/Blue_rectangle.png');
+}
 
 .leaflet-buttons-control-button:hover,
 .leaflet-buttons-control-button:focus {
