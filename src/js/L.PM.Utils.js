@@ -190,13 +190,13 @@ const Utils = {
 
   // This is the first function to call for plot request
   _plotRequest(map, args) {
-    //this._itt = 0
+    this._itt = 0
     this._map = map;
     this._width = args.width;
     this._height = args.height;
     this._scale = args.scale;
-    
-    //this._map.on('keydown', this._plotDisable, this);
+
+    //this._map.on('pm:keyevent',this._plotDisable, this);
 
     // this is the hintmarker on the mouse cursor
     this._hintMarker = L.marker([0, 0], {
@@ -207,48 +207,22 @@ const Utils = {
     this._hintMarker.options.pane = (this._map.pm.globalOptions.panes && this._map.pm.globalOptions.panes.vertexPane) || 'vertexPane';
     this._hintMarker._pmTempLayer = true;
 
-    this._layer = this._hintMarker;
-
     // this is the hintpolygon on the mouse cursor
     var plotLatlngs = this._drawPlotOutline(this._width, this._height, this._scale);
     this._hintPlot = L.polygon(plotLatlngs).addTo(this._map);
 
-    //this._hintMarkerGroup = new L.LayerGroup();
-    //this._hintMarkerGroup._pmTempLayer = true;
-    //this._map.addLayer(this._hintMarkerGroup);
+    this._map.options.snapIgnore = false;
+    this._map.options.pmIgnore = false;
 
-    //this._map.options.snapIgnore = false;
-    //this._map.options.pmIgnore = true;
-
-    //var hintMarkers = Utils._findCoords(this._hintPlot._latlngs[0]);
-
-    //hintMarkers.forEach(markerLatLng => Utils._addhintMarkerGroup(markerLatLng[0]));
-    
     // fire drawstart event
     Utils._fireEvent(this._map, 'pm:drawstart', { source: "Draw", shape: "Plot" });
 
     // Sync hint marker with mouse cursor
     this._map.on('mousemove', this._syncHintMarker, this);
-
+    
     // Create the final Polygon on click
     this._map.on('click', function () { Utils._drawPlot(args)}, this);
-
   },
-
-  //_addhintMarkerGroup: function (latlng) {
-
-  //  var marker = new L.Marker(latlng, {
-  //    draggable: true,
-  //    icon: L.divIcon({ className: 'icon-add-plot-reques' }),
-  //  });
-
-  //  marker.pm.enable({
-  //    snappable: true,
-  //  });
-
-  //  this._hintMarkerGroup.addLayer(marker);
-  //},
-
 
   scaleToZoomLevel : function (scale) {
     switch (scale) {
@@ -289,10 +263,9 @@ const Utils = {
     var plot = L.polygon(latlngs).addTo(this._map);
     this._plot = plot;
     
-
     // If the plot is removed then remove the attached markers
     plot.on('pm:remove', Utils._removeMarkers, this);
-    //this._itt = this._itt + 1;
+    this._itt = this._itt + 1;
     plot.feature = {};
     plot.feature.type = 'Feature';
     plot.feature.shape = "Plot";
@@ -301,11 +274,11 @@ const Utils = {
     plot.feature.properties.height = args.height;
     plot.feature.properties.scale = args.scale;
     plot.feature.properties.dpi = args.dpi;
-    plot.feature.properties.plotRequestId = args.plotRequestId;
-    //plot.feature.properties.plotRequestId = this._itt;
+    //plot.feature.properties.plotRequestId = args.plotRequestId;
+    plot.feature.properties.plotRequestId = this._itt;
+    plot.feature.id = this._itt;
     plot.feature.properties.template = args.template;
     
-
     // Add plotGroup to map
     this._plotGroup = new L.LayerGroup();
     this._plotGroup._pmTempLayer = true;
@@ -313,39 +286,11 @@ const Utils = {
 
     this._plotGroup.addLayer(plot);
 
-    // comment them out to avoid creating markers if a plot placement is failed
-
-    //// Find center of each edge to place a marker
-    //const markerCoords = this._findCoords(plot._latlngs[0]);
-
-    //// if this._markerGroups exists then remove it 
-    //if (this._map.hasLayer(this._markerGroup)) { this._map.removeLayer(this._markerGroup) };
-
-    //// Add markerGroup to map, markerGroup includes the middle markers
-    //this._markerGroup = new L.LayerGroup();
-    //this._markerGroup._pmTempLayer = true;
-    //this._map.addLayer(this._markerGroup);
-
-    //// create markers on each edge of rectangle
-    //this._markers = [];
-
-    //markerCoords.forEach(markerLatLng => this._createMarker(markerLatLng, markerLatLng[1], "none", this, plot._leaflet_id, args.width, args.height, args.scale, args.dpi, args.plotRequestId, args.template));
-
     // Remove hintmarker and hintpolygon and unbind the click events
     this._hintMarker.remove();
     this._hintPlot.remove();
     this._map.off('click');
     this._map.off('mousemove', this._syncHintMarker, this);
-
-    // comment them out to avoid creating markers if a plot placement is failed
-
-    //this._markers.forEach(marker => marker[0].on('click', function (e) {
-    //  Utils._fireEvent(this._map, 'pm:beforeplotrequestplaces', {
-    //    index: this.index,
-    //    initial: false,
-    //    onMarkerClick: { markerLatlng: marker[0]._latlng, position: marker[1], clickedMarker: this, width: marker[2], height: marker[3], scale: marker[4], dpi: marker[5], plotItemId: marker[6], plotRequestId :marker[7], template: marker[8]}
-    //  });
-    //}));
 
     // fire drawend event
     Utils._fireEvent(this._map, 'pm:drawend', { shape: "Plot", source: "Draw" });
@@ -361,7 +306,7 @@ const Utils = {
   
   // Add extra plots on marker click
   _addExtraPlot: function (e) {
-    //this._itt = this._itt + 1;
+    this._itt = this._itt + 1;
     var ratio = e.height / e.width;
     var pixOffsetX = e.width / 2;
     var pixOffsetY = pixOffsetX * ratio;
@@ -411,32 +356,10 @@ const Utils = {
     addedPlot.feature.properties.height = e.height;
     addedPlot.feature.properties.scale = e.scale;
     addedPlot.feature.properties.dpi = e.dpi;
-    //addedPlot.feature.properties.plotRequestId = this._itt;
-    addedPlot.feature.properties.plotRequestId = e.plotRequestId;
+    addedPlot.feature.id = this._itt;
+    addedPlot.feature.properties.plotRequestId = this._itt;
+    //addedPlot.feature.properties.plotRequestId = e.plotRequestId;
     addedPlot.feature.properties.template = e.template;
-
-
-    //// check to remove any extra marker
-
-    //this._map.eachLayer((plot) => {
-    //  if (plot instanceof L.Polygon && plot._latlngs[0].length == 4) {
-    //    if (plot.feature.properties.plotRequestId != addedPlot.feature.properties.plotRequestId) {
-    //      var addedPlotCoords = Utils._findCoords(addedPlot._latlngs[0]);
-
-    //      addedPlotCoords.forEach(coord => {
-    //        for (var i = 0; i < this._markerGroup.length; i++) {
-    //          if (this._markerGroup[i][0].distanceTo(coord[0]) < 0.05) {
-              
-    //            this._markerGroup.getLayers()[i].off('click');
-    //            this._markerGroup.removeLayer(this._markerGroup.getLayers()[i]);
-    //            this._markers.splice(i, 1);
-
-    //          }
-    //        }
-    //      });
-    //    }
-    //  }
-    //});
 
 
     // comment them out to avoid creating markers if a plot placement is failed
@@ -465,61 +388,35 @@ const Utils = {
   _removeMarkers: function (e) {
     this._plotGroup.removeLayer(e.layer);
     this._map.removeLayer(e.layer);
-    this._markerGroup.clearLayers();
+   
+    // removing the deleted plot marker 
+    for (let i = 0; i < this._markerGroup.getLayers().length; i++) {
+        if (this._markerGroup.getLayers()[i].id == e.layer.feature.id) {
+          this._markerGroup.removeLayer(this._markerGroup.getLayers()[i]);
+        }
+    };
 
-    // create markers on each edge of rectangle
-    this._markers = [];
-    var width;
-    var height;
-    this._map.eachLayer((layer) => {
-      if (layer instanceof L.Polygon && layer._latlngs[0].length == 4) {
+    // find the adjacent polygongs to the deleted one. Returns array of adjacent positions
+    var layerCoords = this._findCoords(e.layer._latlngs[0]);
+    var adjPoints = []
 
-        var dpi = layer.feature.properties.dpi;
-        var scale = layer.feature.properties.scale;
-        var plotRequestId = layer.feature.properties.plotRequestId;
-        var plotItemId = layer.feature.id;
-        var template = layer.feature.properties.template;
-
-        var markerCoords = Utils._findCoords(layer._latlngs[0]);
-
-        // check if there is a overlap plot
-        this._map.eachLayer((plot) => {
-          if (plot instanceof L.Polygon && plot._latlngs[0].length == 4) {
-
-            if (plot.feature.id != plotItemId) {
-              var plotCoords = Utils._findCoords(plot._latlngs[0]);
-              plotCoords.forEach(coord => {
-                for (var i = 0; i < markerCoords.length; i++) {
-                  if (markerCoords[i][0].distanceTo(coord[0]) < 0.05) { markerCoords.splice(i, 1); }
-                }
-              });
-            }
-          }
-        });
-
-        
-        var edges = []
-        var mapZoom = Utils.scaleToZoomLevel(this._scale);
-        layer._latlngs[0].forEach(latlng => edges.push(this._map.project(latlng, mapZoom)));
-
-        width = Math.sqrt(Math.pow(edges[1].x - edges[0].x, 2) + Math.pow(edges[1].y - edges[0].y, 2));
-        height = Math.sqrt(Math.pow(edges[2].x - edges[1].x, 2) + Math.pow(edges[2].y - edges[1].y, 2));
-
-        markerCoords.forEach(markerLatLng => Utils._createMarker(markerLatLng, markerLatLng[1], "none", this, width, height, scale, dpi, plotItemId,plotRequestId, template));
-        this._plotGroup.addLayer(layer);
-
-        layer.on('pm:remove', Utils._removeMarkers, this);
+    this._map.eachLayer((plot) => {
+      if (plot instanceof L.Polygon && plot._latlngs[0].length == 4) {
+        var plotCoord = this._findCoords(plot._latlngs[0]);
+        if (e.layer.feature.id != plot.feature.id) {
+          layerCoords.forEach(lCoord => {
+            plotCoord.forEach(pCoords => {
+              if (lCoord[0].distanceTo(pCoords[0]) < 0.05) {
+                adjPoints.push([plot, pCoords[1], pCoords[0]]);
+              }
+            })
+          })
+        }
       }
     });
-    
-    this._markers.forEach(marker => marker[0].off('click').on('click', function (e) {
-      Utils._fireEvent(this._map, 'pm:beforeplotrequestplaces', {
-        index: this.index,
-        initial: false,
-        onMarkerClick: { markerLatlng: marker[0]._latlng, position: marker[1], clickedMarker: this, width: marker[2], height: marker[3], scale: marker[4], dpi: marker[5], plotItemId: marker[6], plotRequestId: marker[7], template: marker[8], sourceLayer: marker[9]},
 
-      });
-    }))
+
+    // based on the adjPoints the new markers will be placed
   },
 
   // Draw the hintpolygone and final plot after click
@@ -537,43 +434,52 @@ const Utils = {
   },
 
   _syncHintMarker(e) {
+    //this._map= this._map
     // move the cursor marker
     this._hintMarker.setLatLng(e.latlng);
     this._hintPlot.setLatLngs(this._drawPlotOutline(this._width, this._height, this._scale));
 
-    //var vertix = this._drawPlotOutline(this._width, this._height, this._scale);
-
-    //this._hintMarkerGroup.clearLayers();
-    //vertix.forEach(markerLatLng => Utils._addhintMarkerGroup(markerLatLng));
+    // if snapping is enabled, do it
+      //const fakeDragEvent = e;
+      //fakeDragEvent.target = this._hintPlot;
+    //  var snapLatlng = Snap._handleSnappingTest(fakeDragEvent, this._map);
+    
+    //this._hintPlot.setLatLngs(snapLatlng);
   },
 
   // Find the coordinates of the new markers and the position of related edge (up,bottom,left,right)
   _findCoords(plotCoords) {
     let markerCoords = [];
-    
+
     for (let i = 0; i < plotCoords.length; i++){
 
       if (i == plotCoords.length-1) {
         let pointA = new L.LatLng(plotCoords[i].lat, plotCoords[i].lng);
         let pointB = new L.LatLng(plotCoords[0].lat, plotCoords[0].lng);
-        let center = [L.polyline([pointA, pointB]).getBounds().getCenter(), "left"];
+        let cLatLng = L.polyline([pointA, pointB]).getBounds().getCenter();
+        
+        let center = [cLatLng, "left"];
         markerCoords.push(center)
       } else {
         let pointA = new L.LatLng(plotCoords[i].lat, plotCoords[i].lng);
         let pointB = new L.LatLng(plotCoords[i + 1].lat, plotCoords[i + 1].lng);
         let center;
+        let cLatLng;
 
         switch (i) {
           case 0:
-            center = [L.polyline([pointA, pointB]).getBounds().getCenter(), "bottom"];
+            cLatLng = L.polyline([pointA, pointB]).getBounds().getCenter();
+            center = [cLatLng, "bottom"];
             markerCoords.push(center);
             break;
           case 1:
-            center = [L.polyline([pointA, pointB]).getBounds().getCenter(), "right"];
+            cLatLng = L.polyline([pointA, pointB]).getBounds().getCenter();
+            center = [cLatLng, "right"];
             markerCoords.push(center);
             break;
           case 2:
-            center = [L.polyline([pointA, pointB]).getBounds().getCenter(), "up"];
+            cLatLng = L.polyline([pointA, pointB]).getBounds().getCenter();
+            center = [cLatLng, "up"];
             markerCoords.push(center);
             break;
         }
@@ -585,59 +491,61 @@ const Utils = {
 
   // creates initial markers. Input: marker's coordinates, marker's position (from the _findCoords()), position of clicked marker
   // We also need the plot Id for removing the associated markers with each delete plot later
-  _createMarker(latlng, position, clickedEdge, index, width, height, scale, dpi, plotItemId, plotRequestId, template, layer) {
-    var clickedMarkerPosition;
-    var clickedCondition = !(latlng[1] == "bottom" && clickedEdge == "up") && !(latlng[1] == "right" && clickedEdge == "left") && !(latlng[1] == "left" && clickedEdge == "right") && !(latlng[1] == "up" && clickedEdge == "bottom");
+  _createMarker(latlng, position, clickedEdge, index, width, height, scale, dpi, plotItemId, plotRequestId, template, layer, plotMarkerGroup) {
+    if (typeof (plotMarkerGroup) != 'undefined') {
+      var clickedMarkerPosition;
+      var clickedCondition = !(latlng[1] == "bottom" && clickedEdge == "up") && !(latlng[1] == "right" && clickedEdge == "left") && !(latlng[1] == "left" && clickedEdge == "right") && !(latlng[1] == "up" && clickedEdge == "bottom");
 
-    const marker = new L.Marker(latlng[0], {
-      draggable: false,
-      icon: L.divIcon({ className: 'icon-add-plot-request' }),
-    });
+      const marker = new L.Marker(latlng[0], {
+        draggable: false,
+        icon: L.divIcon({ className: 'icon-add-plot-request' }),
+      });
 
-    //for (let i = 0; i < this._markers.length; i++) {
-    //  if (this._markers[i][6] == plotItemId && this._markers[i][1] == position) {
-    //    return;
-    //  }
-    //}
-    
-    
-    // comment out that part would solve the toggle issue
-    for (let i = 0; i < this._markerGroup.getLayers().length ; i++) {
-      if (clickedCondition && this._markerGroup.getLayers()[i].getLatLng().distanceTo(latlng[0]) < 0.05 ) {
-        clickedMarkerPosition = latlng[1];
+      // find the adjacent polygongs. Returns array of adjacent positions
+      var adjPlot = Utils._findAdjPlots(this._map, layer);
+     
+      // this check will prevent a new marker placement at the place of clicked marker (compatible with nested layer group )
+      for (let i = 0; i < this._markerGroup.getLayers().length; i++) {
+        [this._markerGroup.getLayers()[i]._layers].forEach(markerGroup => {
+          Object.entries(markerGroup).forEach(marker => {
+            if (clickedCondition && marker[1].getLatLng().distanceTo(latlng[0]) < 0.05) {
+              clickedMarkerPosition = latlng[1];
+              this._markerGroup.getLayers()[i].removeLayer(marker[1]);
+            }
+          })
+        })
+      };
+
+      if (clickedMarkerPosition != latlng[1] && clickedCondition && !adjPlot.includes(position)) {
+        marker.options.pane = (this._map.pm.globalOptions.panes && this._map.pm.globalOptions.panes.vertexPane) || 'markerPane';
+        marker._origLatLng = latlng[0];
+        marker._index = index;
+        marker._pmTempLayer = true;
+
+        plotMarkerGroup.addLayer(marker);
+        //this._markerGroup.addLayer(marker);
+
+        this._markers.push([marker, position, width, height, scale, dpi, plotItemId, plotRequestId, template, layer]);
       }
-    };
-
-    if (clickedMarkerPosition != latlng[1] && clickedCondition) {
-      marker.options.pane = (this._map.pm.globalOptions.panes && this._map.pm.globalOptions.panes.vertexPane) || 'markerPane';
-      marker._origLatLng = latlng[0];
-      marker._index = index;
-      marker._pmTempLayer = true;
-      this._markerGroup.addLayer(marker);
-      this._markers.push([marker, position, width, height, scale, dpi, plotItemId, plotRequestId, template,layer]);
+      this._markerGroup.addLayer(plotMarkerGroup);
     }
-
-    
-    
     return;
   },
 
-  _plotDisable() {
-    //// Remove the marker and plot layer group
-    //this._map.removeLayer(this._markerGroup);
-    //this._map.removeLayer(this._plotGroup);
-   
-    // Unbind the click and mousemove events 
-    this._map.off('click')
-    this._map.off('mousemove', this._syncHintMarker, this);
+  _plotDisable(e) {
+    if (e.event.keyCode === 27) {
+      // Unbind the click and mousemove events 
+      this._map.off('click')
+      this._map.off('mousemove', this._syncHintMarker, this);
 
-    this._hintMarker.remove();
-    this._hintPlot.remove();
+      this._hintMarker.remove();
+      this._hintPlot.remove();
+    }
+   
   },
 
   // Add markers to the existing plots on the map
   _addMarkers(map, layer) {
-
     this._map = map;
     var width = layer.feature.properties.width;
     var height = layer.feature.properties.height;
@@ -646,7 +554,8 @@ const Utils = {
     var plotRequestId = layer.feature.properties.plotRequestId;
     var plotItemId = layer.feature.id
     var template = layer.feature.properties.template;
-    
+    console.log(this._map._layers);
+
     if (!this._map.hasLayer(this._markerGroup)) {
       // Add plotGroup to map
       this._markerGroup = new L.LayerGroup();
@@ -654,27 +563,28 @@ const Utils = {
       this._map.addLayer(this._markerGroup);
     }
 
-    if (typeof(this._markers) == 'undefined') { this._markers = [];};
+    if (this._markerGroup.getLayers().length == 0) {
+      var plotMarkerGroup = new L.LayerGroup();
+      plotMarkerGroup.id = plotItemId;
+      plotMarkerGroup._pmTempLayer = true;
+    }
+
+    for (let i = 0; i < this._markerGroup.getLayers().length; i++) {
+      if (this._markerGroup.getLayers()[i].id != plotItemId) {
+        var plotMarkerGroup = new L.LayerGroup();
+        plotMarkerGroup.id = plotItemId;
+        plotMarkerGroup._pmTempLayer = true;
+      } else {
+        return;
+      }
+    };
+
+    if (typeof (this._markers) == 'undefined') { this._markers = []; };
+
     // create markers on each edge of rectangle
-    
     var markerCoords = Utils._findCoords(layer._latlngs[0]);
+    markerCoords.forEach(markerLatLng => Utils._createMarker(markerLatLng, markerLatLng[1], "none", this, width, height, scale, dpi, plotItemId, plotRequestId, template, layer, plotMarkerGroup));
    
-    //// check if there is a overlap plot
-    //map.eachLayer((plot) => {
-    //  if (plot instanceof L.Polygon && plot._latlngs[0].length == 4) {
-    //    if (plot.feature.id != plotItemId) {
-    //      var plotCoords = Utils._findCoords(plot._latlngs[0]);
-    //      plotCoords.forEach(coord => {
-    //        for (var i = 0; i < markerCoords.length; i++) {
-    //          if (markerCoords[i][0].distanceTo(coord[0]) < 0.05) { markerCoords.splice(i, 1); }
-    //        }
-    //      });
-    //    }
-    //  }
-    //});
-
-    markerCoords.forEach(markerLatLng => Utils._createMarker(markerLatLng, markerLatLng[1], "none", this, width, height, scale, dpi, plotItemId, plotRequestId,template, layer));
-
     if (!this._map.hasLayer(this._plotGroup)) {
       // Add plotGroup to map
       this._plotGroup = new L.LayerGroup();
@@ -693,7 +603,28 @@ const Utils = {
 
       });
     }))
+  },
 
+  _findAdjPlots(map, layer) {
+    this._map = map;
+    var layerCoords = this._findCoords(layer._latlngs[0]);
+    var adjPoints = []
+
+    this._map.eachLayer((plot) => {
+      if (plot instanceof L.Polygon && plot._latlngs[0].length == 4) {
+        var plotCoord = this._findCoords(plot._latlngs[0]);
+        if (layer.feature.id != plot.feature.id) {
+          layerCoords.forEach(lCoord => {
+            plotCoord.forEach(pCoords => {
+              if (lCoord[0].distanceTo(pCoords[0]) < 0.05) {
+                adjPoints.push(lCoord[1]);
+              }
+            })
+          })
+        }
+      }
+    });
+    return adjPoints;
   }
 };
 

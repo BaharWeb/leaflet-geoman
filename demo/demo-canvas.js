@@ -391,26 +391,61 @@ layerGroup.on('pm:markerdragend', function (e) {
   console.log(e);
 });
 
-// test with markercluster
-// var markers = L.markerClusterGroup();
-// markers.addLayer(L.marker([51.505, -0.07]));
-// markers.addLayer(L.marker([51.505, -0.08]));
-// markers.addLayer(L.marker([51.505, -0.09]));
-// map4.addLayer(markers);
-
 function logEvent(e) {
   console.log(e);
 }
 
-L.polygon([[51.51364748733509,-0.14456651401905998], [51.51364748733509,-0.14091870975880608], [51.515149755456754, -0.14091870975880608], [51.515149755456754, -0.14456651401905998]]).addTo(map4);
-L.polygon([[51.5121451758625, -0.14091870975880608], [51.5121451758625, -0.13727090549855214], [51.51364749352824, -0.13727090549855214], [51.51364749352824, -0.14091870975880608]]).addTo(map4);
-L.polygon([[51.51364749352822, -0.14091870975880608], [51.51364749352822, -0.13727090549855214], [51.515149761649646, -0.13727090549855214], [51.515149761649646, -0.14091870975880608]]).addTo(map4);
+var p = L.polygon([[51.51364748733509,-0.14456651401905998], [51.51364748733509,-0.14091870975880608], [51.515149755456754, -0.14091870975880608], [51.515149755456754, -0.14456651401905998]]).addTo(map4);
+var q = L.polygon([[51.5121451758625, -0.14091870975880608], [51.5121451758625, -0.13727090549855214], [51.51364749352824, -0.13727090549855214], [51.51364749352824, -0.14091870975880608]]).addTo(map4);
+var r = L.polygon([[51.51364749352822, -0.14091870975880608], [51.51364749352822, -0.13727090549855214], [51.515149761649646, -0.13727090549855214], [51.515149761649646, -0.14091870975880608]]).addTo(map4);
+var s = L.polygon([[51.51364748733509,-0.13727090549855214], [51.51364748733509, -0.13362310123829824], [51.515149755456754, -0.13362310123829824], [51.515149755456754, -0.13727090549855214]]).addTo(map4);
+
+p.feature = {};
+p.feature.type = 'Feature';
+p.feature.properties = {};
+p.feature.properties.width = "680";
+p.feature.properties.height = "450";
+p.feature.properties.scale = "2000";
+p.feature.properties.dpi = "test";
+p.feature.properties.plotRequestId = 1;
+p.feature.id = 19;
+
+q.feature = {};
+q.feature.type = 'Feature';
+q.feature.properties = {};
+q.feature.properties.width = "680";
+q.feature.properties.height = "450";
+q.feature.properties.scale = "2000";
+q.feature.properties.dpi = "test";
+q.feature.properties.plotRequestId = 2;
+q.feature.id = 20;
+
+r.feature = {};
+r.feature.type = 'Feature';
+r.feature.properties = {};
+r.feature.properties.width = "680";
+r.feature.properties.height = "450";
+r.feature.properties.scale = "2000";
+r.feature.properties.dpi = "test";
+r.feature.properties.plotRequestId = 3;
+r.feature.id = 21;
+
+s.feature = {};
+s.feature.type = 'Feature';
+s.feature.properties = {};
+s.feature.properties.width = "680";
+s.feature.properties.height = "450";
+s.feature.properties.scale = "2000";
+s.feature.properties.dpi = "test";
+s.feature.properties.plotRequestId = 3;
+s.feature.id = 22;
+
 
 
 $("#plotRequest").click(function () {
 
   // this will only raise an event to check the user`s credit to place the plot on the map
-  map4.pm._fireBeforePlotRequestPlaced(true,680, 450,2000,"Some Comment");
+  map4.pm._fireBeforePlotRequestPlaced(true, 880, 650, 2000, "Some Comment");
 
 })
 
@@ -418,7 +453,12 @@ $("#plotRequest").click(function () {
 $("#plotRequestMarkers").click(function () {
 
   // Add markers to existing plots on the map
-  L.PM.Utils._addMarkers(map4, 680, 450, 2000);
+  L.PM.Utils._addMarkers(map4, p);
+ 
+  L.PM.Utils._addMarkers(map4, r);
+  L.PM.Utils._addMarkers(map4, q);
+  L.PM.Utils._addMarkers(map4, s);
+  //L.PM.Utils._test();
 })
 
 $("#plotRequestDelete").click(function () {
@@ -439,13 +479,27 @@ map4.on('pm:beforeplotrequestplaces', (e) => {
 
   // If this the first plot on the map
   if (e.initial == true) {
-    L.PM.Utils._plotRequest(map4, e);
+    L.PM.Utils._plotRequest(map4, e, { "plotRequestId": 40 });
   } else {
     
     // If this plot is added to to an existing plot (by clicking on the map)
     L.PM.Utils._addExtraPlot(e.onMarkerClick)
+   
   }
 
 });
 
+map4.on('pm:create', (e) => {
+  //console.log(e);
+  if (e.shape == "Plot") {
+    L.PM.Utils._test();
+
+  }
+});
+
+//$(document).keyup(function (e) { L.PM.Utils._plotDisable});
+
+//$(document).ready(function () {
+//  map4.pm._fireBeforePlotRequestPlaced(true, 880, 650, 2000, "Some Comment");
+//});
 
