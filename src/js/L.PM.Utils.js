@@ -1,5 +1,6 @@
 import { createGeodesicPolygon, getTranslation } from './helpers';
 import { _toLatLng, _toPoint } from './helpers/ModeHelper';
+import Snap from './Mixins/Snapping';
 
 const Utils = {
   calcMiddleLatLng(map, latlng1, latlng2) {
@@ -190,13 +191,15 @@ const Utils = {
 
   // This is the first function to call for plot request
   _plotRequest(map, args) {
-    this._itt = 0
+    //this._itt = 0
     this._map = map;
     this._width = args.width;
     this._height = args.height;
     this._scale = args.scale;
 
-    //this._map.on('pm:keyevent',this._plotDisable, this);
+    this._map.on('pm:keyevent',this._plotDisable, this);
+
+    this._layer = this._hintMarker;
 
     // this is the hintmarker on the mouse cursor
     this._hintMarker = L.marker([0, 0], {
@@ -258,14 +261,13 @@ const Utils = {
 
   // Draw the final plot and markers
   _drawPlot: function (args) {
-
     var latlngs = this._drawPlotOutline(this._width, this._height, this._scale);
     var plot = L.polygon(latlngs).addTo(this._map);
     this._plot = plot;
     
     // If the plot is removed then remove the attached markers
     plot.on('pm:remove', Utils._removeMarkers, this);
-    this._itt = this._itt + 1;
+    //this._itt = this._itt + 1;
     plot.feature = {};
     plot.feature.type = 'Feature';
     plot.feature.shape = "Plot";
@@ -274,9 +276,9 @@ const Utils = {
     plot.feature.properties.height = args.height;
     plot.feature.properties.scale = args.scale;
     plot.feature.properties.dpi = args.dpi;
-    //plot.feature.properties.plotRequestId = args.plotRequestId;
-    plot.feature.properties.plotRequestId = this._itt;
-    plot.feature.id = this._itt;
+    plot.feature.properties.plotRequestId = args.plotRequestId;
+    //plot.feature.properties.plotRequestId = this._itt;
+    //plot.feature.id = this._itt;
     plot.feature.properties.template = args.template;
     
     // Add plotGroup to map
@@ -306,7 +308,7 @@ const Utils = {
   
   // Add extra plots on marker click
   _addExtraPlot: function (e) {
-    this._itt = this._itt + 1;
+    //this._itt = this._itt + 1;
     var ratio = e.height / e.width;
     var pixOffsetX = e.width / 2;
     var pixOffsetY = pixOffsetX * ratio;
@@ -336,6 +338,7 @@ const Utils = {
     var bbox = L.latLngBounds(latLng1, latLng2);
     var addedPlot = L.polygon([bbox.getSouthWest(), bbox.getSouthEast(), bbox.getNorthEast(), bbox.getNorthWest()]).addTo(this._map);
 
+
     if (!this._map.hasLayer(this._plotGroup)) {
       // Add plotGroup to map
       this._plotGroup = new L.LayerGroup();
@@ -356,11 +359,10 @@ const Utils = {
     addedPlot.feature.properties.height = e.height;
     addedPlot.feature.properties.scale = e.scale;
     addedPlot.feature.properties.dpi = e.dpi;
-    addedPlot.feature.id = this._itt;
-    addedPlot.feature.properties.plotRequestId = this._itt;
-    //addedPlot.feature.properties.plotRequestId = e.plotRequestId;
+    //addedPlot.feature.id = this._itt;
+    //addedPlot.feature.properties.plotRequestId = this._itt;
+    addedPlot.feature.properties.plotRequestId = e.plotRequestId;
     addedPlot.feature.properties.template = e.template;
-
 
     // comment them out to avoid creating markers if a plot placement is failed
     //var addedmarkerCoords = Utils._findCoords(addedPlot._latlngs[0]);
@@ -440,11 +442,10 @@ const Utils = {
     this._hintPlot.setLatLngs(this._drawPlotOutline(this._width, this._height, this._scale));
 
     // if snapping is enabled, do it
-      //const fakeDragEvent = e;
-      //fakeDragEvent.target = this._hintPlot;
-    //  var snapLatlng = Snap._handleSnappingTest(fakeDragEvent, this._map);
-    
-    //this._hintPlot.setLatLngs(snapLatlng);
+    const fakeDragEvent = e;
+    fakeDragEvent.target = this._hintPlot;
+    var newLatlng = Snap._handleSnappingTest(fakeDragEvent, this._map, this._width, this._height, Utils.scaleToZoomLevel(this._scale));
+    this._hintPlot.setLatLngs(newLatlng);
   },
 
   // Find the coordinates of the new markers and the position of related edge (up,bottom,left,right)
@@ -516,19 +517,19 @@ const Utils = {
         })
       };
 
-      if (clickedMarkerPosition != latlng[1] && clickedCondition && !adjPlot.includes(position)) {
+      if (clickedMarkerPosition != latlng[1] && clickedCondition) {
         marker.options.pane = (this._map.pm.globalOptions.panes && this._map.pm.globalOptions.panes.vertexPane) || 'markerPane';
         marker._origLatLng = latlng[0];
         marker._index = index;
         marker._pmTempLayer = true;
 
         plotMarkerGroup.addLayer(marker);
-        //this._markerGroup.addLayer(marker);
 
         this._markers.push([marker, position, width, height, scale, dpi, plotItemId, plotRequestId, template, layer]);
       }
       this._markerGroup.addLayer(plotMarkerGroup);
     }
+    //console.log(this._markerGroup);
     return;
   },
 
@@ -554,15 +555,15 @@ const Utils = {
     var plotRequestId = layer.feature.properties.plotRequestId;
     var plotItemId = layer.feature.id
     var template = layer.feature.properties.template;
-    console.log(this._map._layers);
 
-    if (!this._map.hasLayer(this._markerGroup)) {
+    if (typeof (this._markerGroup) == 'undefined') {  
+    //if (!this._map.hasLayer(this._markerGroup)) {
       // Add plotGroup to map
       this._markerGroup = new L.LayerGroup();
       this._markerGroup._pmTempLayer = true;
       this._map.addLayer(this._markerGroup);
-    }
-
+    //}
+    };
     if (this._markerGroup.getLayers().length == 0) {
       var plotMarkerGroup = new L.LayerGroup();
       plotMarkerGroup.id = plotItemId;
@@ -584,8 +585,9 @@ const Utils = {
     // create markers on each edge of rectangle
     var markerCoords = Utils._findCoords(layer._latlngs[0]);
     markerCoords.forEach(markerLatLng => Utils._createMarker(markerLatLng, markerLatLng[1], "none", this, width, height, scale, dpi, plotItemId, plotRequestId, template, layer, plotMarkerGroup));
-   
-    if (!this._map.hasLayer(this._plotGroup)) {
+
+    if (typeof (this._plotGroup) == 'undefined') {
+    //if (!this._map.hasLayer(this._plotGroup)) {
       // Add plotGroup to map
       this._plotGroup = new L.LayerGroup();
       this._plotGroup._pmTempLayer = true;
@@ -625,7 +627,8 @@ const Utils = {
       }
     });
     return adjPoints;
-  }
+  },
+
 };
 
 export default Utils;

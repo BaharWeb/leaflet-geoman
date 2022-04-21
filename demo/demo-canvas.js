@@ -453,9 +453,9 @@ $("#plotRequest").click(function () {
 $("#plotRequestMarkers").click(function () {
 
   // Add markers to existing plots on the map
-  L.PM.Utils._addMarkers(map4, p);
+  //L.PM.Utils._addMarkers(map4, p);
  
-  L.PM.Utils._addMarkers(map4, r);
+  //L.PM.Utils._addMarkers(map4, r);
   L.PM.Utils._addMarkers(map4, q);
   L.PM.Utils._addMarkers(map4, s);
   //L.PM.Utils._test();
@@ -496,10 +496,3 @@ map4.on('pm:create', (e) => {
 
   }
 });
-
-//$(document).keyup(function (e) { L.PM.Utils._plotDisable});
-
-//$(document).ready(function () {
-//  map4.pm._fireBeforePlotRequestPlaced(true, 880, 650, 2000, "Some Comment");
-//});
-
