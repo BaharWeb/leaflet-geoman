@@ -213,7 +213,8 @@ const Utils = {
     // this is the hintpolygon on the mouse cursor
     var plotLatlngs = this._drawPlotOutline(this._width, this._height, this._scale);
     this._hintPlot = L.polygon(plotLatlngs).addTo(this._map);
-
+    this._layer = this._hintPlot;
+    
     this._map.options.snapIgnore = false;
     this._map.options.pmIgnore = false;
 
@@ -293,6 +294,7 @@ const Utils = {
     this._hintPlot.remove();
     this._map.off('click');
     this._map.off('mousemove', this._syncHintMarker, this);
+    Snap._cleanupPlotSnapping();
 
     // fire drawend event
     Utils._fireEvent(this._map, 'pm:drawend', { shape: "Plot", source: "Draw" });
@@ -364,19 +366,6 @@ const Utils = {
     addedPlot.feature.properties.plotRequestId = e.plotRequestId;
     addedPlot.feature.properties.template = e.template;
 
-    // comment them out to avoid creating markers if a plot placement is failed
-    //var addedmarkerCoords = Utils._findCoords(addedPlot._latlngs[0]);
-    //addedmarkerCoords.forEach(markerLatLng => this._createMarker(markerLatLng, markerLatLng[1], e.onMarkerClick.position, this, addedPlot._leaflet_id, e.onMarkerClick.width, e.onMarkerClick.height, e.onMarkerClick.scale, e.onMarkerClick.dpi, e.onMarkerClick.plotRequestId, e.onMarkerClick.template ));
-    
-    //this._markers.forEach(marker => marker[0].off('click').on('click', function (e) {
-    //  Utils._fireEvent(this._map, 'pm:beforeplotrequestplaces', {
-    //    index: this.index,
-    //    initial: false,
-    //    onMarkerClick: { markerLatlng: marker[0]._latlng, position: marker[1], clickedMarker: this, width: marker[2], height: marker[3], scale: marker[4], dpi: marker[5], plotItemId: marker[6], plotRequestId :marker[7], template: marker[8]}
-    //  });
-
-    //}));
-
     // Remove the clicked marker and all its events
     e.clickedMarker.off('click');
     e.clickedMarker.remove();
@@ -416,8 +405,6 @@ const Utils = {
         }
       }
     });
-
-
     // based on the adjPoints the new markers will be placed
   },
 
@@ -436,7 +423,6 @@ const Utils = {
   },
 
   _syncHintMarker(e) {
-    //this._map= this._map
     // move the cursor marker
     this._hintMarker.setLatLng(e.latlng);
     this._hintPlot.setLatLngs(this._drawPlotOutline(this._width, this._height, this._scale));
@@ -444,8 +430,15 @@ const Utils = {
     // if snapping is enabled, do it
     const fakeDragEvent = e;
     fakeDragEvent.target = this._hintPlot;
-    var newLatlng = Snap._handleSnappingTest(fakeDragEvent, this._map, this._width, this._height, Utils.scaleToZoomLevel(this._scale));
-    this._hintPlot.setLatLngs(newLatlng);
+    var newLatlng = Snap._handleSnappingPlot(fakeDragEvent, this._map, this._width, this._height, Utils.scaleToZoomLevel(this._scale),this._hintPlot);
+    
+    // it is undefined when it is not in the snapping range 
+    if (typeof (newLatlng) != 'undefined') {
+      
+      this._hintPlot.setLatLngs(newLatlng[0]);
+      this._hintMarker.setLatLng(newLatlng[1]);
+      
+    }
   },
 
   // Find the coordinates of the new markers and the position of related edge (up,bottom,left,right)
@@ -504,12 +497,12 @@ const Utils = {
 
       // find the adjacent polygongs. Returns array of adjacent positions
       var adjPlot = Utils._findAdjPlots(this._map, layer);
-     
-      // this check will prevent a new marker placement at the place of clicked marker (compatible with nested layer group )
+      
+      // this will prevent a new marker placement at the place of the clicked marker (compatible with nested layer group )
       for (let i = 0; i < this._markerGroup.getLayers().length; i++) {
         [this._markerGroup.getLayers()[i]._layers].forEach(markerGroup => {
           Object.entries(markerGroup).forEach(marker => {
-            if (clickedCondition && marker[1].getLatLng().distanceTo(latlng[0]) < 0.05) {
+            if (clickedCondition && marker[1].getLatLng().distanceTo(latlng[0]) < 0.08) {
               clickedMarkerPosition = latlng[1];
               this._markerGroup.getLayers()[i].removeLayer(marker[1]);
             }
@@ -529,7 +522,6 @@ const Utils = {
       }
       this._markerGroup.addLayer(plotMarkerGroup);
     }
-    //console.log(this._markerGroup);
     return;
   },
 
@@ -542,7 +534,6 @@ const Utils = {
       this._hintMarker.remove();
       this._hintPlot.remove();
     }
-   
   },
 
   // Add markers to the existing plots on the map
@@ -555,14 +546,12 @@ const Utils = {
     var plotRequestId = layer.feature.properties.plotRequestId;
     var plotItemId = layer.feature.id
     var template = layer.feature.properties.template;
-
-    if (typeof (this._markerGroup) == 'undefined') {  
-    //if (!this._map.hasLayer(this._markerGroup)) {
+   
+    if (typeof (this._markerGroup) === 'undefined') {  
       // Add plotGroup to map
       this._markerGroup = new L.LayerGroup();
       this._markerGroup._pmTempLayer = true;
       this._map.addLayer(this._markerGroup);
-    //}
     };
     if (this._markerGroup.getLayers().length == 0) {
       var plotMarkerGroup = new L.LayerGroup();
@@ -585,9 +574,8 @@ const Utils = {
     // create markers on each edge of rectangle
     var markerCoords = Utils._findCoords(layer._latlngs[0]);
     markerCoords.forEach(markerLatLng => Utils._createMarker(markerLatLng, markerLatLng[1], "none", this, width, height, scale, dpi, plotItemId, plotRequestId, template, layer, plotMarkerGroup));
-
+    
     if (typeof (this._plotGroup) == 'undefined') {
-    //if (!this._map.hasLayer(this._plotGroup)) {
       // Add plotGroup to map
       this._plotGroup = new L.LayerGroup();
       this._plotGroup._pmTempLayer = true;

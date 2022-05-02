@@ -1,6 +1,4 @@
-import { polygon } from 'leaflet';
 import { isEmptyDeep, prioritiseSort } from '../helpers';
-import Events from './Events';
 
 const SnapMixin = {
   _initSnappableMarkers() {
@@ -57,7 +55,7 @@ const SnapMixin = {
     // we check if the throttledList is existing, else the function is deleted but the `layeradd` event calls it.
     // this made problems when layer was removed and added to the map in the `pm:create` event
     if (this.throttledList) {
-      this._createSnapList();
+      this._createSnapList()
     }
   },
   _handleSnapping(e) {
@@ -219,7 +217,7 @@ const SnapMixin = {
         }
 
         // uncomment 👇 this line to show helper lines for debugging
-        debugLine.addTo(map);
+        //debugLine.addTo(map);
       }
     });
 
@@ -247,8 +245,6 @@ const SnapMixin = {
     } else {
       this._snapList = layers;
     }
-
-    //console.log(this._snapList);
     this.debugIndicatorLines = debugIndicatorLines;
   },
   _handleSnapLayerRemoval({ layer }) {
@@ -263,7 +259,7 @@ const SnapMixin = {
     // the closest polygon to our dragged marker latlng
     let closestLayers = [];
     let closestLayer = {};
-
+    
     // loop through the layers
     layers.forEach((layer, index) => {
       // For Circles, CircleMarker and SldMarkers to prevent that they snap to the own borders.
@@ -272,12 +268,11 @@ const SnapMixin = {
       }
       // find the closest latlng, segment and the distance of this layer to the dragged marker latlng
       const results = this._calcLayerDistances(latlng, layer);
-
       if (this.debugIndicatorLines[index]) {
         // show indicator lines, it's for debugging
         this.debugIndicatorLines[index].setLatLngs([latlng, results.latlng]);
       }
-
+      
       // save the info if it doesn't exist or if the distance is smaller than the previous one
       if (
         closestLayer.distance === undefined ||
@@ -286,11 +281,14 @@ const SnapMixin = {
         if (results.distance < closestLayer.distance) {
           closestLayers = [];
         }
+        
         closestLayer = results;
         closestLayer.layer = layer;
         closestLayers.push(closestLayer);
       }
     });
+
+    
     // return the closest layer and it's data
     // if there is no closest layer, return an empty object
     return this._getClosestLayerByPriority(closestLayers);
@@ -384,7 +382,7 @@ const SnapMixin = {
         closestSegment[0],
         closestSegment[1]
       );
-
+   
       // return the latlng of that sucker
       return {
         latlng: { ...C },
@@ -394,6 +392,7 @@ const SnapMixin = {
     }
     // Only snap on the coords
     // return the closest coord
+
     return {
       latlng: closestCoord,
       distance: shortestDistance,
@@ -508,155 +507,272 @@ const SnapMixin = {
       .distanceTo(map.latLngToLayerPoint(latlngB));
   },
 
-  //_handleSnappingTest(e, map, width, height, mapZoom) {
+  _handleSnappingPlot(e, map, width, height, mapZoom, hintPlot) {
 
-  //  this.options = {};
-  //  this.options.snapDistance = 30;
-  //  this.options.snapSegment =
-  //    this.options.snapSegment === undefined ? true : this.options.snapSegment;
+    this._layer = hintPlot;
+    this.options = {};
+    this.options.snapDistance = 30;
+    this.options.snapSegment =
+      this.options.snapSegment === undefined ? true : this.options.snapSegment;
 
-  //  this._map = map;
-  //  const marker = e.target;
+    this._map = map;
+    const marker = e.target;
+    marker._snapped = false;
 
-  //  marker._snapped = false;
+    // if snapping is disabled via holding ALT during drag, stop right here
+    if (this._map.pm.Keyboard.isAltKeyPressed()) {
+      return false;
+    }
 
-  //  if (!this.throttledList) {
-  //    this.throttledList = L.Util.throttle(
-  //      this._handleThrottleSnapping,
-  //      100,
-  //      this
-  //    );
-  //  }
+    if (this._plotSnapList === undefined) {
+      //console.log("now creating the snap list");
+      this._createPlotSnapList();
+      //// re-create the snaplist again when a layer is added during draw
+      //this._map.off('layeradd', this.throttledList, this);
+      //this._map.on('layeradd', this.throttledList, this);
+    }
 
-  //  // if snapping is disabled via holding ALT during drag, stop right here
-  //  if (this._map.pm.Keyboard.isAltKeyPressed()) {
-  //    return false;
-  //  }
+    // if there are no layers to snap to, stop here
+    if (this._plotSnapList.length <= 0) {
+      return false;
+    }
 
-  //  // create a list of layers that the marker could snap to
-  //  // this isn't inside a movestart/dragstart callback because middlemarkers are initialized
-  //  // after dragstart/movestart so it wouldn't fire for them
-  //  if (this._snapList === undefined) {
-  //    this._createSnapList();
+    // get the closest layer, it's closest latlng, segment and the distance
+    const closestLayer = this._calcClosestLayer(
+      marker.getLatLngs()[0][0],
+      this._plotSnapList
+    );
 
-  //    // re-create the snaplist again when a layer is added during draw
-  //    this._map.off('layeradd', this.throttledList, this);
-  //    this._map.on('layeradd', this.throttledList, this);
-  //  }
+    const closestLayerUpRight = this._calcClosestLayer(
+      marker.getLatLngs()[0][2],
+      this._plotSnapList
+    );
 
-  //  // if there are no layers to snap to, stop here
-  //  if (this._snapList.length <= 0) {
-  //    return false;
-  //  }
+    const closestLayerDownRight = this._calcClosestLayer(
+      marker.getLatLngs()[0][1],
+      this._plotSnapList
+    );
 
-  //  // get the closest layer, it's closest latlng, segment and the distance
-  //  const closestLayer = this._calcClosestLayer(
-  //    marker.getLatLngs()[0][0],
-  //    this._snapList
-  //  );
+    const closestLayerUpLeft = this._calcClosestLayer(
+      marker.getLatLngs()[0][3],
+      this._plotSnapList
+    );
 
-  //  const closestLayer1 = this._calcClosestLayer(
-  //    marker.getLatLngs()[0][1],
-  //    this._snapList
-  //  );
+    // if no layers found. Can happen when circle is the only visible layer on the map and the hidden snapping-border circle layer is also on the map
+    if (Object.keys(closestLayer).length === 0) {
+      return false;
+    }
 
-  //  const closestLayer2 = this._calcClosestLayer(
-  //    marker.getLatLngs()[0][2],
-  //    this._snapList
-  //  );
-
-  //  const closestLayer3 = this._calcClosestLayer(
-  //    marker.getLatLngs()[0][3],
-  //    this._snapList
-  //  );
-  //  // if no layers found. Can happen when circle is the only visible layer on the map and the hidden snapping-border circle layer is also on the map
-  //  if (Object.keys(closestLayer).length === 0) {
-  //    return false;
-  //  }
-
-  //  //const isMarker =
-  //  //  closestLayer.layer instanceof L.Polygon ||
-  //  //!this.options.snapSegment;
-
-  //  // find the final latlng that we want to snap to
-  //  let snapLatLng = closestLayer.latlng;
+    // find the final latlng that we want to snap to
+    let snapLatLng = closestLayer.latlng;
+    let snapLatLngUpRight = closestLayerUpRight.latlng;
+    let snapLatLngDownRight = closestLayerDownRight.latlng;
+    let snapLatLngUpLeft = closestLayerUpLeft.latlng;
     
-  //  // minimal distance before marker snaps (in pixels)
-  //  const minDistance = this.options.snapDistance;
+    // minimal distance before marker snaps (in pixels)
+    const minDistance = this.options.snapDistance;
 
-  //  // event info for pm:snap and pm:unsnap
-  //  const eventInfo = {
-  //    marker,
-  //    shape: this._shape,
-  //    snapLatLng,
-  //    segment: closestLayer.segment,
-  //    layer: this._layer,
-  //    workingLayer: this._layer,
-  //    layerInteractedWith: closestLayer.layer, // for lack of a better property name
-  //    distance: closestLayer.distance,
-  //  };
-
-  //  //Events._fireSnapDrag(eventInfo.marker, eventInfo);
-  //  //Events._fireSnapDrag(this._layer, eventInfo);
-  //  var snapLatlngs;
-  //  if (closestLayer.distance < minDistance) {
+    // event info for pm:snap and pm:unsnap
+    const eventInfo = {
+      marker,
+      shape: this._shape,
+      snapLatLng,
+      segment: closestLayer.segment,
+      layer: this._layer,
+      workingLayer: this._layer,
+      layerInteractedWith: closestLayer.layer, // for lack of a better property name
+      distance: closestLayer.distance,
+    };
+    
+    var snapLatlngs;
+    if (closestLayer.distance < minDistance) {
       
-  //    snapLatlngs = _findSnapPoints(width, height, mapZoom, snapLatLng);
-  //    // snap the polygon
-  //    //marker.setLatLngs(snapLatLng);
+      snapLatlngs = this._findSnapPoints(width, height, mapZoom, snapLatLng, "downLeft");
+      
+      const triggerSnap = () => {
+        this._snapLatLng = snapLatLng;
+      };
 
+      // check if the snapping position differs from the last snap
+      const a = this._snapLatLng || {};
+      const b = snapLatLng || {};
 
-  //    //marker._snapped = true;
-  //    //marker._snapInfo = eventInfo;
+      if (a.lat !== b.lat || a.lng !== b.lng) {
+        triggerSnap();
+      }
+    } else if (this._snapLatLng) {
+      
+      // if it was previously snapped...
+      this._unsnap(eventInfo);
+      marker._snapped = false;
+    }
 
-  //    const triggerSnap = () => {
-  //      this._snapLatLng = snapLatLng;
-  //      //this._fireSnap(marker, eventInfo);
-  //      //this._fireSnap(this._layer, eventInfo);
-  //    };
+    if (closestLayerUpRight.distance < minDistance) {
 
-  //    // check if the snapping position differs from the last snap
-  //    // Thanks Max & car2go Team
-  //    const a = this._snapLatLng || {};
-  //    const b = snapLatLng || {};
+      snapLatlngs = this._findSnapPoints(width, height, mapZoom, snapLatLngUpRight, "upRight");
 
-  //    if (a.lat !== b.lat || a.lng !== b.lng) {
-  //      triggerSnap();
-  //    }
-  //  } else if (this._snapLatLng) {
-  //    // no more snapping
+      const triggerSnap = () => {
+        this._snapLatLng = snapLatLng;
+      };
 
-  //    // if it was previously snapped...
-  //    // ...unsnap
-  //    this._unsnap(eventInfo);
+      // check if the snapping position differs from the last snap
+      const a = this._snapLatLng || {};
+      const b = snapLatLng || {};
 
-  //    marker._snapped = false;
+      if (a.lat !== b.lat || a.lng !== b.lng) {
+        triggerSnap();
+      }
+    } else if (this._snapLatLng) {
 
-  //    // and fire unsnap event
-  //    this._fireUnsnap(eventInfo.marker, eventInfo);
-  //    this._fireUnsnap(this._layer, eventInfo);
-  //  }
+      // if it was previously snapped...
+      this._unsnap(eventInfo);
+      marker._snapped = false;
+    }
 
-  //  return snapLatlngs;
-  //},
+    if (closestLayerDownRight.distance < minDistance) {
 
-  //_findSnapPoints: function (width, height, mapZoom , snapLatLng) {
-    
-  //  var ratio = height / width;
-  //  var pixOffsetX = width / 2;
-  //  var pixOffsetY = pixOffsetX * ratio;
-  //  var snapPoint = this._map.project(snapLatLng, mapZoom);
+      snapLatlngs = this._findSnapPoints(width, height, mapZoom, snapLatLngDownRight, "downRight");
 
-  //  var overlayCenter = this._map.unproject(L.point([snapPoint.x, snapPoint.y - pixOffsetY]), mapZoom);
-  //  var centerPoint = this._map.project(overlayCenter, mapZoom);
+      const triggerSnap = () => {
+        this._snapLatLng = snapLatLng;
+      };
 
-  //  var latLng1 = this._map.unproject(L.point([centerPoint.x - pixOffsetX, centerPoint.y + pixOffsetY]), mapZoom);
-  //  var latLng2 = this._map.unproject(L.point([centerPoint.x + pixOffsetX, centerPoint.y - pixOffsetY]), mapZoom);
-  //  var bbox = L.latLngBounds(latLng1, latLng2);
+      // check if the snapping position differs from the last snap
+      const a = this._snapLatLng || {};
+      const b = snapLatLng || {};
 
-  //  return [bbox.getSouthWest(), bbox.getSouthEast(), bbox.getNorthEast(), bbox.getNorthWest()];
+      if (a.lat !== b.lat || a.lng !== b.lng) {
+        triggerSnap();
+      }
+    } else if (this._snapLatLng) {
 
-  //},
+      // if it was previously snapped...
+      this._unsnap(eventInfo);
+      marker._snapped = false;
+    }
+
+    if (closestLayerUpLeft.distance < minDistance) {
+      snapLatlngs = this._findSnapPoints(width, height, mapZoom, snapLatLngUpLeft, "upLeft");
+
+      const triggerSnap = () => {
+        this._snapLatLng = snapLatLng;
+      };
+
+      // check if the snapping position differs from the last snap
+      const a = this._snapLatLng || {};
+      const b = snapLatLng || {};
+
+      if (a.lat !== b.lat || a.lng !== b.lng) {
+        triggerSnap();
+      }
+    } else if (this._snapLatLng) {
+
+      // if it was previously snapped...
+      this._unsnap(eventInfo);
+      marker._snapped = false;
+    }
+
+    return snapLatlngs;
+
+  },
+
+  _findSnapPoints: function (width, height, mapZoom, snapLatLng, position) {
+    var plotCoords = []
+    var snapPoint = this._map.project(snapLatLng, mapZoom);
+    var latLng1 = this._map.unproject(L.point([snapPoint.x, snapPoint.y]), mapZoom);
+    var latLng2;
+
+    switch (position) {
+      case "downLeft":
+        latLng2 = this._map.unproject(L.point([snapPoint.x + width, snapPoint.y - height]), mapZoom);
+        break;
+
+      case "upRight":
+        latLng2 = this._map.unproject(L.point([snapPoint.x - width, snapPoint.y + height]), mapZoom);
+        break;
+
+      case "downRight":
+        latLng2 = this._map.unproject(L.point([snapPoint.x - width, snapPoint.y - height]), mapZoom);
+        break;
+
+      case "upLeft":
+        latLng2 = this._map.unproject(L.point([snapPoint.x + width, snapPoint.y + height]), mapZoom);
+        break;
+    }
+
+    var bbox = L.latLngBounds(latLng1, latLng2);
+    var markerLatlng = bbox.getCenter();
+    plotCoords.push([bbox.getSouthWest(), bbox.getSouthEast(), bbox.getNorthEast(), bbox.getNorthWest()]);
+    plotCoords.push(markerLatlng);
+    return plotCoords;
+  },
+
+  _createPlotSnapList() {
+    let layers = [];
+    const debugIndicatorLines = [];
+    const map = this._map;
+   
+    // find all layers that are or inherit from Polylines... and markers that are not
+    // temporary markers of polygon-edits
+    map.eachLayer((layer) => {
+      // layer.feature.type !== 'hintPlot' to prevent the hint polygon to snap to itself
+      if ((layer instanceof L.Polyline) && layer.options.snapIgnore !== true) {//&& layer.feature.type !== 'hintPlot') {
+
+        // if snapIgnore === false the layer will be always snappable
+        if (
+          layer.options.snapIgnore === undefined &&
+          ((!L.PM.optIn && layer.options.pmIgnore === true) || // if optIn is not set and pmIgnore is true, the layer will be ignored
+            (L.PM.optIn && layer.options.pmIgnore !== false)) // if optIn is true and pmIgnore is not false, the layer will be ignored
+        ) {
+          return;
+        }
+        layers.push(layer);
+
+        // this is for debugging
+        const debugLine = L.polyline([], { color: 'red', pmIgnore: true });
+        debugLine._pmTempLayer = true;
+        debugIndicatorLines.push(debugLine);
+        if (layer instanceof L.Circle || layer instanceof L.CircleMarker || layer instanceof L.SldMarker) {
+          debugIndicatorLines.push(debugLine);
+        }
+
+        // uncomment 👇 this line to show helper lines for debugging
+        //debugLine.addTo(map);
+      }
+    });
+
+    // ...except myself
+    layers = layers.filter((layer) => this._layer !== layer);
+
+    // also remove everything that has no coordinates yet
+    layers = layers.filter(
+      (layer) =>
+        layer._latlng || (layer._latlngs && !isEmptyDeep(layer._latlngs))
+    );
+
+    // finally remove everything that's leaflet-geoman specific temporary stuff
+    layers = layers.filter((layer) => !layer._pmTempLayer);
+
+    // save snaplist from layers and the other snap layers added from other classes/scripts
+    if (this._otherSnapLayers) {
+      this._otherSnapLayers.forEach(() => {
+        // this is for debugging
+        const debugLine = L.polyline([], { color: 'red', pmIgnore: true });
+        debugLine._pmTempLayer = true;
+        debugIndicatorLines.push(debugLine);
+      });
+      this._plotSnapList = layers.concat(this._otherSnapLayers);
+    } else {
+      this._plotSnapList = layers;
+    }
+
+    this.debugIndicatorLines = debugIndicatorLines;
+  },
+  _cleanupPlotSnapping() {
+    // delete it, we need to refresh this with each start of a drag because
+    // meanwhile, new layers could've been added to the map
+    delete this._plotSnapList;
+  },
 };
 
 export default SnapMixin;

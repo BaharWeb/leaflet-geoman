@@ -328,7 +328,7 @@ const feature = {
   },
 };
 
-const layerGroup = L.featureGroup([layerGroupItem1]).addTo(map4);
+const layerGroup = L.featureGroup([layerGroupItem1]);
 layerGroup.pm.toggleEdit({
   draggable: true,
   snappable: true,
@@ -339,7 +339,7 @@ const someLayer = L.geoJSON(feature);
 layerGroup.addLayer(someLayer);
 
 someLayer.addData(feature);
-console.log(layerGroup);
+//console.log(layerGroup);
 
 layerGroup.on('pm:snap', function (e) {
   console.log('snap');
@@ -453,9 +453,9 @@ $("#plotRequest").click(function () {
 $("#plotRequestMarkers").click(function () {
 
   // Add markers to existing plots on the map
-  //L.PM.Utils._addMarkers(map4, p);
+  L.PM.Utils._addMarkers(map4, p);
  
-  //L.PM.Utils._addMarkers(map4, r);
+  L.PM.Utils._addMarkers(map4, r);
   L.PM.Utils._addMarkers(map4, q);
   L.PM.Utils._addMarkers(map4, s);
   //L.PM.Utils._test();
@@ -488,6 +488,8 @@ map4.on('pm:beforeplotrequestplaces', (e) => {
   }
 
 });
+
+//map4.pm.Toolbar.setButtonDisabled('drawPolygon', true);
 
 map4.on('pm:create', (e) => {
   //console.log(e);
