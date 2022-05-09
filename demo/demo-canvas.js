@@ -400,6 +400,11 @@ var q = L.polygon([[51.5121451758625, -0.14091870975880608], [51.5121451758625, 
 var r = L.polygon([[51.51364749352822, -0.14091870975880608], [51.51364749352822, -0.13727090549855214], [51.515149761649646, -0.13727090549855214], [51.515149761649646, -0.14091870975880608]]).addTo(map4);
 var s = L.polygon([[51.51364748733509,-0.13727090549855214], [51.51364748733509, -0.13362310123829824], [51.515149755456754, -0.13362310123829824], [51.515149755456754, -0.13727090549855214]]).addTo(map4);
 
+var marker = new L.SldMarker([51.51364748733509, -0.13727090549855214], {
+  draggable: false
+});
+
+marker.addTo(map4)
 p.feature = {};
 p.feature.type = 'Feature';
 p.feature.properties = {};
@@ -462,8 +467,9 @@ $("#plotRequestMarkers").click(function () {
 })
 
 $("#plotRequestDelete").click(function () {
-  map4.pm.toggleGlobalRemovalMode();
-
+  //map4.pm.toggleGlobalRemovalMode();
+  console.log(s);
+  console.log(marker);
 })
 
 
@@ -497,4 +503,9 @@ map4.on('pm:create', (e) => {
     L.PM.Utils._test();
 
   }
+});
+
+marker.on('click', (e) => {
+  console.log(e);
+  
 });
