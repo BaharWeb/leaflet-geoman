@@ -295,7 +295,7 @@ const Utils = {
     this._plot = plot;
     
     // If the plot is removed then remove the attached markers
-    plot.on('pm:remove', Utils._removeMarkers, this);
+    //plot.on('pm:remove', Utils._removeMarkers, this);
     //this._itt = this._itt + 1;
     plot.feature = {};
     plot.feature.type = 'Feature';
@@ -379,7 +379,7 @@ const Utils = {
     this._plotGroup.addLayer(addedPlot);
     this._addedPlot = addedPlot;
     // If the plot is removed then remove the attached markers
-    addedPlot.on('pm:remove', this._removeMarkers, this);
+    //addedPlot.on('pm:remove', this._removeMarkers, this);
     
     addedPlot.feature = {};
     addedPlot.feature.type = 'Feature';
@@ -405,35 +405,37 @@ const Utils = {
   },
 
   _removeMarkers: function (e) {
-    this._plotGroup.removeLayer(e.layer);
-    this._map.removeLayer(e.layer);
+
+    this._markerGroup.clearLayers();
+    //this._plotGroup.removeLayer(e.layer);
+    //this._map.removeLayer(e.layer);
    
-    // removing the deleted plot marker 
-    for (let i = 0; i < this._markerGroup.getLayers().length; i++) {
-        if (this._markerGroup.getLayers()[i].id == e.layer.feature.id) {
-          this._markerGroup.removeLayer(this._markerGroup.getLayers()[i]);
-        }
-    };
+    //// removing the deleted plot marker 
+    //for (let i = 0; i < this._markerGroup.getLayers().length; i++) {
+    //    if (this._markerGroup.getLayers()[i].id == e.layer.feature.id) {
+    //      this._markerGroup.removeLayer(this._markerGroup.getLayers()[i]);
+    //    }
+    //};
 
-    // find the adjacent polygongs to the deleted one. Returns array of adjacent positions
-    var layerCoords = this._findCoords(e.layer._latlngs[0]);
-    var adjPoints = []
+    //// find the adjacent polygongs to the deleted one. Returns array of adjacent positions
+    //var layerCoords = this._findCoords(e.layer._latlngs[0]);
+    //var adjPoints = []
 
-    this._map.eachLayer((plot) => {
-      if (plot instanceof L.Polygon && plot._latlngs[0].length == 4) {
-        var plotCoord = this._findCoords(plot._latlngs[0]);
-        if (e.layer.feature.id != plot.feature.id) {
-          layerCoords.forEach(lCoord => {
-            plotCoord.forEach(pCoords => {
-              if (lCoord[0].distanceTo(pCoords[0]) < 0.05) {
-                adjPoints.push([plot, pCoords[1], pCoords[0]]);
-              }
-            })
-          })
-        }
-      }
-    });
-    // based on the adjPoints the new markers will be placed
+    //this._map.eachLayer((plot) => {
+    //  if (plot instanceof L.Polygon && plot._latlngs[0].length == 4) {
+    //    var plotCoord = this._findCoords(plot._latlngs[0]);
+    //    if (e.layer.feature.id != plot.feature.id) {
+    //      layerCoords.forEach(lCoord => {
+    //        plotCoord.forEach(pCoords => {
+    //          if (lCoord[0].distanceTo(pCoords[0]) < 0.05) {
+    //            adjPoints.push([plot, pCoords[1], pCoords[0]]);
+    //          }
+    //        })
+    //      })
+    //    }
+    //  }
+    //});
+    //// based on the adjPoints the new markers will be placed
   },
 
   // Draw the hintpolygone and final plot after click
