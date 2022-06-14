@@ -406,7 +406,9 @@ const Utils = {
 
   _removeMarkers: function (e) {
 
-    this._markerGroup.clearLayers();
+    if (typeof (this._markerGroup) != 'undefined') {
+      this._markerGroup.clearLayers();
+    }
     //this._plotGroup.removeLayer(e.layer);
     //this._map.removeLayer(e.layer);
    
